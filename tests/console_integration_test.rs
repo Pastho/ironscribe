@@ -1,6 +1,6 @@
 use ironscribe::{
     DefaultLogService, LogEntry, LogLevel, LogMessageType, core::LogService, create_log_unit,
-    destinations::ConsoleDestination, log_error, log_info, log_success, log_warn,
+    destinations::ConsoleDestination, error, info, success, warn,
 };
 use std::sync::Arc;
 use uuid::Uuid;
@@ -197,17 +197,18 @@ async fn test_default_log_service_with_console() {
 #[tokio::test]
 async fn test_logging_macros_integration() {
     let service = DefaultLogService::new();
-    let unit = create_log_unit!(service, "macro-test").unwrap();
+    let unit = create_log_unit!(service, "macro-test");
 
     // Test all logging macros
-    log_info!(service, unit.id, "Info message from macro").unwrap();
-    log_warn!(service, unit.id, "Warning message from macro").unwrap();
-    log_error!(service, unit.id, "Error message from macro").unwrap();
-    log_success!(service, unit.id, "Success message from macro").unwrap();
+    info!(service, unit, "Info message from macro");
+
+    warn!(service, unit, "Warning message from macro");
+    error!(service, unit, "Error message from macro");
+    success!(service, unit, "Success message from macro");
 
     // Test formatted messages
     let count = 42;
-    log_info!(service, unit.id, "Formatted message with count: {}", count).unwrap();
+    info!(service, unit, "Formatted message with count: {}", count);
 
     // Verify all entries
     let entries = LogService::get_log_entries(&service, unit.id)

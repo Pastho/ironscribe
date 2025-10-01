@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+use crate::core::LogService;
 
 /// Represents a log unit that groups related log messages
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

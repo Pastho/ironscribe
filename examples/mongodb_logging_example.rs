@@ -5,10 +5,10 @@ use ironscribe::{
     MongoConfig,
     MongoDestination,
     core::LogService,
-    log_error,
-    log_info,
-    log_success,
-    log_warn,
+    error,
+    info,
+    success,
+    warn,
 };
 
 #[tokio::main]
@@ -71,34 +71,34 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         LogService::create_log_unit(&service, "data-processing-workflow".to_string()).await?;
 
     // Use the convenient macros for logging
-    log_info!(
+    info!(
         service,
-        workflow_unit.id,
+        workflow_unit,
         "Starting data processing workflow"
-    )?;
+    );
 
     // Simulate some processing steps
     for i in 1..=5 {
-        log_info!(service, workflow_unit.id, "Processing batch {} of 5", i)?;
+        info!(service, workflow_unit, "Processing batch {} of 5", i);
 
         // Simulate some work
         tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
         if i == 3 {
-            log_warn!(
+            warn!(
                 service,
-                workflow_unit.id,
+                workflow_unit,
                 "Batch {} took longer than expected",
                 i
-            )?;
+            );
         }
     }
 
-    log_success!(
+    success!(
         service,
-        workflow_unit.id,
+        workflow_unit,
         "Data processing workflow completed successfully"
-    )?;
+    );
 
     // Method 3: Error handling scenario
     let error_unit =
@@ -107,16 +107,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Simulate an error scenario
     match simulate_database_operation().await {
         Ok(result) => {
-            log_success!(
+            success!(
                 service,
-                error_unit.id,
+                error_unit,
                 "Database operation successful: {}",
                 result
-            )?;
+            );
         }
         Err(e) => {
-            log_error!(service, error_unit.id, "Database operation failed: {}", e)?;
-            log_info!(service, error_unit.id, "Attempting retry...")?;
+            error!(service, error_unit, "Database operation failed: {}", e);
+            info!(service, error_unit, "Attempting retry...");
             // Retry logic would go here
         }
     }
