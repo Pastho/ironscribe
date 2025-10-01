@@ -142,6 +142,7 @@ impl LogService for MongoDestination {
 #[cfg(feature = "mongo")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogEntryWrapper {
+    #[serde(rename = "_id")]
     pub message_id: String,
     pub log_unit_id: String,
     pub message: String,
@@ -179,6 +180,7 @@ impl From<LogEntryWrapper> for LogEntry {
 #[cfg(feature = "mongo")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogUnitWrapper {
+    #[serde(rename = "_id")]
     pub log_unit_id: String,
     pub external_id: String,
     pub timestamp: chrono::DateTime<chrono::Utc>,
