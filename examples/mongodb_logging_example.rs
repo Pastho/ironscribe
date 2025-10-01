@@ -25,26 +25,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     println!(
         "📝 Created log unit: {} (ID: {})",
-        log_unit.external_id, log_unit.id
+        log_unit.external_id, log_unit.log_unit_id
     );
 
     // Log different types of messages
     LogService::log(
         &mongo_destination,
-        LogEntry::info(log_unit.id, "Application started successfully".to_string()),
+        LogEntry::info(log_unit.log_unit_id, "Application started successfully".to_string()),
     )
     .await?;
 
     LogService::log(
         &mongo_destination,
-        LogEntry::warning(log_unit.id, "This is a warning message".to_string()),
+        LogEntry::warning(log_unit.log_unit_id, "This is a warning message".to_string()),
     )
     .await?;
 
     LogService::log(
         &mongo_destination,
         LogEntry::error(
-            log_unit.id,
+            log_unit.log_unit_id,
             "An error occurred during processing".to_string(),
         ),
     )
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     LogService::log(
         &mongo_destination,
-        LogEntry::success(log_unit.id, "Task completed successfully".to_string()),
+        LogEntry::success(log_unit.log_unit_id, "Task completed successfully".to_string()),
     )
     .await?;
 
@@ -124,7 +124,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Retrieve and display logged entries
     println!("\n📊 Retrieving logged entries...");
 
-    let entries = LogService::get_log_entries(&service, workflow_unit.id).await?;
+    let entries = LogService::get_log_entries(&service, workflow_unit.log_unit_id).await?;
     println!("Found {} entries for workflow unit:", entries.len());
 
     for entry in &entries {

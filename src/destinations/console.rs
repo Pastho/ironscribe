@@ -56,11 +56,11 @@ impl LogService for ConsoleDestination {
 
         // Store the log unit
         let mut units = self.log_units.write().await;
-        units.insert(log_unit.id, log_unit.clone());
+        units.insert(log_unit.log_unit_id, log_unit.clone());
 
         // Initialize empty entries vector for this unit
         let mut entries = self.log_entries.write().await;
-        entries.insert(log_unit.id, Vec::new());
+        entries.insert(log_unit.log_unit_id, Vec::new());
 
         Ok(log_unit)
     }
@@ -110,10 +110,10 @@ mod tests {
         let destination = ConsoleDestination::new();
         let unit = destination.create_log_unit("test".to_string()).await.unwrap();
 
-        let entry = LogEntry::info(unit.id, "Test message".to_string());
+        let entry = LogEntry::info(unit.log_unit_id, "Test message".to_string());
         destination.log(entry.clone()).await.unwrap();
 
-        let entries = destination.get_log_entries(unit.id).await.unwrap();
+        let entries = destination.get_log_entries(unit.log_unit_id).await.unwrap();
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].message, "Test message");
     }

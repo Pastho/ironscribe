@@ -15,10 +15,10 @@ async fn test_console_destination_basic_functionality() {
         .unwrap();
 
     assert_eq!(unit.external_id, "integration-test");
-    assert!(!unit.id.is_nil());
+    assert!(!unit.log_unit_id.is_nil());
 
     // Test retrieving the created log unit
-    let retrieved_unit = LogService::get_log_unit(&console, unit.id).await.unwrap();
+    let retrieved_unit = LogService::get_log_unit(&console, unit.log_unit_id).await.unwrap();
     assert!(retrieved_unit.is_some());
     assert_eq!(retrieved_unit.unwrap().external_id, "integration-test");
 }
@@ -31,10 +31,10 @@ async fn test_console_logging_all_message_types() {
         .unwrap();
 
     // Test all message types
-    let error_entry = LogEntry::error(unit.id, "This is an error message".to_string());
-    let warning_entry = LogEntry::warning(unit.id, "This is a warning message".to_string());
-    let info_entry = LogEntry::info(unit.id, "This is an info message".to_string());
-    let success_entry = LogEntry::success(unit.id, "This is a success message".to_string());
+    let error_entry = LogEntry::error(unit.log_unit_id, "This is an error message".to_string());
+    let warning_entry = LogEntry::warning(unit.log_unit_id, "This is a warning message".to_string());
+    let info_entry = LogEntry::info(unit.log_unit_id, "This is an info message".to_string());
+    let success_entry = LogEntry::success(unit.log_unit_id, "This is a success message".to_string());
 
     // Log all entries
     LogService::log(&console, error_entry.clone())
@@ -49,7 +49,7 @@ async fn test_console_logging_all_message_types() {
         .unwrap();
 
     // Retrieve and verify all entries
-    let entries = LogService::get_log_entries(&console, unit.id)
+    let entries = LogService::get_log_entries(&console, unit.log_unit_id)
         .await
         .unwrap();
     assert_eq!(entries.len(), 4);
@@ -73,10 +73,10 @@ async fn test_console_log_levels_ordering() {
         .unwrap();
 
     // Create entries with different levels
-    let error_entry = LogEntry::error(unit.id, "Error".to_string());
-    let warning_entry = LogEntry::warning(unit.id, "Warning".to_string());
-    let info_entry = LogEntry::info(unit.id, "Info".to_string());
-    let success_entry = LogEntry::success(unit.id, "Success".to_string());
+    let error_entry = LogEntry::error(unit.log_unit_id, "Error".to_string());
+    let warning_entry = LogEntry::warning(unit.log_unit_id, "Warning".to_string());
+    let info_entry = LogEntry::info(unit.log_unit_id, "Info".to_string());
+    let success_entry = LogEntry::success(unit.log_unit_id, "Success".to_string());
 
     // Verify log level ordering
     assert!(error_entry.level < warning_entry.level);
@@ -107,31 +107,31 @@ async fn test_console_multiple_log_units() {
     // Log entries to different units
     LogService::log(
         &console,
-        LogEntry::info(unit1.id, "Message for unit 1".to_string()),
+        LogEntry::info(unit1.log_unit_id, "Message for unit 1".to_string()),
     )
     .await
     .unwrap();
     LogService::log(
         &console,
-        LogEntry::error(unit2.id, "Error for unit 2".to_string()),
+        LogEntry::error(unit2.log_unit_id, "Error for unit 2".to_string()),
     )
     .await
     .unwrap();
     LogService::log(
         &console,
-        LogEntry::success(unit3.id, "Success for unit 3".to_string()),
+        LogEntry::success(unit3.log_unit_id, "Success for unit 3".to_string()),
     )
     .await
     .unwrap();
 
     // Verify entries are stored separately
-    let entries1 = LogService::get_log_entries(&console, unit1.id)
+    let entries1 = LogService::get_log_entries(&console, unit1.log_unit_id)
         .await
         .unwrap();
-    let entries2 = LogService::get_log_entries(&console, unit2.id)
+    let entries2 = LogService::get_log_entries(&console, unit2.log_unit_id)
         .await
         .unwrap();
-    let entries3 = LogService::get_log_entries(&console, unit3.id)
+    let entries3 = LogService::get_log_entries(&console, unit3.log_unit_id)
         .await
         .unwrap();
 
@@ -158,31 +158,31 @@ async fn test_default_log_service_with_console() {
     // Log various messages
     LogService::log(
         &service,
-        LogEntry::info(unit.id, "Service info message".to_string()),
+        LogEntry::info(unit.log_unit_id, "Service info message".to_string()),
     )
     .await
     .unwrap();
     LogService::log(
         &service,
-        LogEntry::warning(unit.id, "Service warning message".to_string()),
+        LogEntry::warning(unit.log_unit_id, "Service warning message".to_string()),
     )
     .await
     .unwrap();
     LogService::log(
         &service,
-        LogEntry::error(unit.id, "Service error message".to_string()),
+        LogEntry::error(unit.log_unit_id, "Service error message".to_string()),
     )
     .await
     .unwrap();
     LogService::log(
         &service,
-        LogEntry::success(unit.id, "Service success message".to_string()),
+        LogEntry::success(unit.log_unit_id, "Service success message".to_string()),
     )
     .await
     .unwrap();
 
     // Retrieve and verify
-    let entries = LogService::get_log_entries(&service, unit.id)
+    let entries = LogService::get_log_entries(&service, unit.log_unit_id)
         .await
         .unwrap();
     assert_eq!(entries.len(), 4);
@@ -211,7 +211,7 @@ async fn test_logging_macros_integration() {
     info!(service, unit, "Formatted message with count: {}", count);
 
     // Verify all entries
-    let entries = LogService::get_log_entries(&service, unit.id)
+    let entries = LogService::get_log_entries(&service, unit.log_unit_id)
         .await
         .unwrap();
     assert_eq!(entries.len(), 5);
@@ -235,7 +235,7 @@ async fn test_console_concurrent_logging() {
 
     for i in 0..10 {
         let console_clone = Arc::clone(&console);
-        let unit_id = unit.id;
+        let unit_id = unit.log_unit_id;
 
         let handle = tokio::spawn(async move {
             let entry = LogEntry::info(unit_id, format!("Concurrent message {}", i));
@@ -250,7 +250,7 @@ async fn test_console_concurrent_logging() {
     }
 
     // Verify all messages were logged
-    let entries = LogService::get_log_entries(&*console, unit.id)
+    let entries = LogService::get_log_entries(&*console, unit.log_unit_id)
         .await
         .unwrap();
     assert_eq!(entries.len(), 10);
@@ -283,8 +283,8 @@ async fn test_console_log_unit_timestamps() {
     assert!(unit1.timestamp < unit2.timestamp);
 
     // Log entries and verify their timestamps
-    let entry1 = LogEntry::info(unit1.id, "First message".to_string());
-    let entry2 = LogEntry::info(unit2.id, "Second message".to_string());
+    let entry1 = LogEntry::info(unit1.log_unit_id, "First message".to_string());
+    let entry2 = LogEntry::info(unit2.log_unit_id, "Second message".to_string());
 
     LogService::log(&console, entry1.clone()).await.unwrap();
 
@@ -293,10 +293,10 @@ async fn test_console_log_unit_timestamps() {
     LogService::log(&console, entry2.clone()).await.unwrap();
 
     // Retrieve entries and verify timestamps
-    let entries1 = LogService::get_log_entries(&console, unit1.id)
+    let entries1 = LogService::get_log_entries(&console, unit1.log_unit_id)
         .await
         .unwrap();
-    let entries2 = LogService::get_log_entries(&console, unit2.id)
+    let entries2 = LogService::get_log_entries(&console, unit2.log_unit_id)
         .await
         .unwrap();
 
@@ -316,7 +316,7 @@ async fn test_console_empty_log_units() {
         .unwrap();
 
     // Test retrieving entries from empty log unit
-    let entries = LogService::get_log_entries(&console, unit.id)
+    let entries = LogService::get_log_entries(&console, unit.log_unit_id)
         .await
         .unwrap();
     assert_eq!(entries.len(), 0);
@@ -343,10 +343,10 @@ async fn test_console_log_entry_structure() {
         .unwrap();
 
     let message = "Test message structure";
-    let entry = LogEntry::info(unit.id, message.to_string());
+    let entry = LogEntry::info(unit.log_unit_id, message.to_string());
 
     // Verify entry structure before logging
-    assert_eq!(entry.log_unit_id, unit.id);
+    assert_eq!(entry.log_unit_id, unit.log_unit_id);
     assert!(!entry.message_id.is_nil());
     assert_eq!(entry.level, LogLevel::Info);
     assert_eq!(entry.message, message);
@@ -355,7 +355,7 @@ async fn test_console_log_entry_structure() {
     LogService::log(&console, entry.clone()).await.unwrap();
 
     // Retrieve and verify structure is preserved
-    let entries = LogService::get_log_entries(&console, unit.id)
+    let entries = LogService::get_log_entries(&console, unit.log_unit_id)
         .await
         .unwrap();
     let retrieved_entry = &entries[0];
@@ -379,13 +379,13 @@ async fn test_console_destination_direct_usage() {
         .unwrap();
     console
         .log(LogEntry::info(
-            unit.id,
+            unit.log_unit_id,
             "Message via trait object".to_string(),
         ))
         .await
         .unwrap();
 
-    let entries = console.get_log_entries(unit.id).await.unwrap();
+    let entries = console.get_log_entries(unit.log_unit_id).await.unwrap();
     assert_eq!(entries.len(), 1);
     assert_eq!(entries[0].message, "Message via trait object");
 }

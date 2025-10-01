@@ -4,7 +4,7 @@
 #[macro_export]
 macro_rules! info {
     ($service:expr, $unit:expr, $($arg:tt)*) => {{
-        let entry = $crate::LogEntry::info($unit.id, format!($($arg)*));
+        let entry = $crate::LogEntry::info($unit.log_unit_id, format!($($arg)*));
         match $service.log(entry).await {
             Ok(_) => {}
             Err(e) => eprintln!("Failed to log info message: {}", e),
@@ -16,7 +16,7 @@ macro_rules! info {
 #[macro_export]
 macro_rules! warn {
     ($service:expr, $unit:expr, $($arg:tt)*) => {{
-        let entry = $crate::LogEntry::warning($unit.id, format!($($arg)*));
+        let entry = $crate::LogEntry::warning($unit.log_unit_id, format!($($arg)*));
         match $service.log(entry).await {
             Ok(_) => {}
             Err(e) => eprintln!("Failed to log warning message: {}", e),
@@ -28,7 +28,7 @@ macro_rules! warn {
 #[macro_export]
 macro_rules! error {
     ($service:expr, $unit:expr, $($arg:tt)*) => {{
-        let entry = $crate::LogEntry::error($unit.id, format!($($arg)*));
+        let entry = $crate::LogEntry::error($unit.log_unit_id, format!($($arg)*));
         match $service.log(entry).await {
             Ok(_) => {}
             Err(e) => eprintln!("Failed to log error message: {}", e),
@@ -40,7 +40,7 @@ macro_rules! error {
 #[macro_export]
 macro_rules! success {
     ($service:expr, $unit:expr, $($arg:tt)*) => {{
-        let entry = $crate::LogEntry::success($unit.id, format!($($arg)*));
+        let entry = $crate::LogEntry::success($unit.log_unit_id, format!($($arg)*));
         match $service.log(entry).await {
             Ok(_) => {}
             Err(e) => eprintln!("Failed to log success message: {}", e),
@@ -78,7 +78,7 @@ mod tests {
         error!(service, unit, "This is an error message");
         success!(service, unit, "This is a success message");
 
-        let entries = service.get_log_entries(unit.id).await.unwrap();
+        let entries = service.get_log_entries(unit.log_unit_id).await.unwrap();
         assert_eq!(entries.len(), 4);
     }
 }

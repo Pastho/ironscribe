@@ -7,7 +7,7 @@ use crate::core::LogService;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct LogUnit {
     /// Unique identifier for the log unit
-    pub id: Uuid,
+    pub log_unit_id: Uuid,
     /// External identifier for the log unit
     pub external_id: String,
     /// Timestamp when the log unit was created
@@ -18,7 +18,7 @@ impl LogUnit {
     /// Creates a new log unit with the given external ID
     pub fn new(external_id: String) -> Self {
         Self {
-            id: Uuid::new_v4(),
+            log_unit_id: Uuid::new_v4(),
             external_id,
             timestamp: Utc::now(),
         }
@@ -40,7 +40,7 @@ mod tests {
         let unit = LogUnit::new(external_id.clone());
 
         assert_eq!(unit.external_id, external_id);
-        assert!(!unit.id.is_nil());
+        assert!(!unit.log_unit_id.is_nil());
     }
 
     #[test]
@@ -48,6 +48,6 @@ mod tests {
         let unit = LogUnit::new_with_generated_id();
 
         assert!(!unit.external_id.is_empty());
-        assert!(!unit.id.is_nil());
+        assert!(!unit.log_unit_id.is_nil());
     }
 }

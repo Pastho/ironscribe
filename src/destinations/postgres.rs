@@ -138,7 +138,7 @@ impl LogService for PostgresDestination {
 
         self.client.execute(
             &query,
-            &[&log_unit.id, &log_unit.external_id, &log_unit.timestamp]
+            &[&log_unit.log_unit_id, &log_unit.external_id, &log_unit.timestamp]
         ).await?;
 
         // Also log to console
@@ -217,7 +217,7 @@ impl LogService for PostgresDestination {
 
         if let Some(row) = rows.first() {
             Ok(Some(LogUnit {
-                id: row.get(0),
+                log_unit_id: row.get(0),
                 external_id: row.get(1),
                 timestamp: row.get(2),
             }))
@@ -237,7 +237,7 @@ impl LogService for PostgresDestination {
 
         for row in rows {
             units.push(LogUnit {
-                id: row.get(0),
+                log_unit_id: row.get(0),
                 external_id: row.get(1),
                 timestamp: row.get(2),
             });

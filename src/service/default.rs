@@ -102,10 +102,10 @@ mod tests {
         let service = DefaultLogService::new();
         let unit = service.create_log_unit("test".to_string()).await.unwrap();
 
-        let entry = LogEntry::info(unit.id, "Test message".to_string());
+        let entry = LogEntry::info(unit.log_unit_id, "Test message".to_string());
         service.log(entry).await.unwrap();
 
-        let entries = service.get_log_entries(unit.id).await.unwrap();
+        let entries = service.get_log_entries(unit.log_unit_id).await.unwrap();
         assert_eq!(entries.len(), 1);
     }
 }
